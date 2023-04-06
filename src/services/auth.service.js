@@ -1,6 +1,7 @@
 const httpStatus = require('http-status');
 const tokenService = require('./token.service');
 const userService = require('./user.service');
+const expertService = require('./expert.service');
 const Token = require('../models/token.model');
 const ApiError = require('../utils/ApiError');
 const { tokenTypes } = require('../config/tokens');
@@ -17,6 +18,20 @@ const loginUserWithEmailAndPassword = async (email, password) => {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect email or password');
   }
   return user;
+};
+
+/**
+ * Login with expert name and password
+ * @param {string} email
+ * @param {string} password
+ * @returns {Promise<User>}
+ */
+const loginExpertWithEmailAndPassword = async (email, password) => {
+  const expert = await expertService.getExpertByEmail(email);
+  if (!expert || !(await expert.isPasswordMatch(password))) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect email or password');
+  }
+  return expert.getPublic();
 };
 
 /**
@@ -52,6 +67,25 @@ const refreshAuth = async (refreshToken) => {
 };
 
 /**
+ * Refresh expert tokens
+ * @param {string} refreshToken
+ * @returns {Promise<Object>}
+ */
+const refreshExpertAuth = async (refreshToken) => {
+  try {
+    const refreshTokenDoc = await tokenService.verifyToken(refreshToken, tokenTypes.REFRESH);
+    const expert = await expertService.getExpertById(refreshTokenDoc.user);
+    if (!expert) {
+      throw new Error();
+    }
+    await refreshTokenDoc.remove();
+    return tokenService.generateExpertAuthTokens(expert);
+  } catch (error) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate');
+  }
+};
+
+/**
  * Reset password
  * @param {string} resetPasswordToken
  * @param {string} newPassword
@@ -66,6 +100,26 @@ const resetPassword = async (resetPasswordToken, newPassword) => {
     }
     await userService.updateUserById(user.id, { password: newPassword });
     await Token.deleteMany({ user: user.id, type: tokenTypes.RESET_PASSWORD });
+  } catch (error) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Password reset failed');
+  }
+};
+
+/**
+ * Reset expert password
+ * @param {string} resetPasswordToken
+ * @param {string} newPassword
+ * @returns {Promise}
+ */
+const resetExpertPassword = async (resetPasswordToken, newPassword) => {
+  try {
+    const resetPasswordTokenDoc = await tokenService.verifyToken(resetPasswordToken, tokenTypes.RESET_PASSWORD);
+    const expert = await expertService.getExpertById(resetPasswordTokenDoc.user);
+    if (!expert) {
+      throw new Error();
+    }
+    await expertService.updateExpertById(expert.id, { password: newPassword });
+    await Token.deleteMany({ user: expert.id, type: tokenTypes.RESET_PASSWORD });
   } catch (error) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Password reset failed');
   }
@@ -96,4 +150,7 @@ module.exports = {
   refreshAuth,
   resetPassword,
   verifyEmail,
+  loginExpertWithEmailAndPassword,
+  refreshExpertAuth,
+  resetExpertPassword,
 };
