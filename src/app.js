@@ -23,6 +23,7 @@ if (config.env !== 'test') {
 }
 
 app.use('/v1/docs', docsRoute)
+
 // set security HTTP headers
 app.use(helmet());
 
