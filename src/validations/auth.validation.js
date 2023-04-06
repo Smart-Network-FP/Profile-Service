@@ -9,6 +9,13 @@ const register = {
   }),
 };
 
+const expertRegister = {
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().custom(password),
+  }),
+};
+
 const login = {
   body: Joi.object().keys({
     email: Joi.string().required(),
@@ -49,6 +56,19 @@ const verifyEmail = {
   }),
 };
 
+const personalInfo = {
+  body: Joi.object().keys({
+    firstName: Joi.string().required(),
+    lastName: Joi.string().required(),
+    phoneNumber: Joi.string().required(),
+    industry: Joi.string().required(),
+    country: Joi.string().required(),
+    state: Joi.string().required(),
+    city: Joi.string().required(),
+    language: Joi.string().required(),
+  }),
+};
+
 module.exports = {
   register,
   login,
@@ -57,4 +77,6 @@ module.exports = {
   forgotPassword,
   resetPassword,
   verifyEmail,
+  expertRegister,
+  personalInfo,
 };

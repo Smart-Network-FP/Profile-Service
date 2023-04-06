@@ -6,6 +6,7 @@ const userService = require('./user.service');
 const { Token } = require('../models');
 const ApiError = require('../utils/ApiError');
 const { tokenTypes } = require('../config/tokens');
+const { expertService } = require('.');
 
 /**
  * Generate token
@@ -86,6 +87,31 @@ const generateAuthTokens = async (user) => {
 };
 
 /**
+ * Generate expert auth tokens
+ * @param {Expert} expert
+ * @returns {Promise<Object>}
+ */
+const generateExpertAuthTokens = async (expert) => {
+  const accessTokenExpires = moment().add(config.jwt.accessExpirationMinutes, 'minutes');
+  const accessToken = generateToken(expert.id, accessTokenExpires, tokenTypes.ACCESS);
+
+  const refreshTokenExpires = moment().add(config.jwt.refreshExpirationDays, 'days');
+  const refreshToken = generateToken(expert.id, refreshTokenExpires, tokenTypes.REFRESH);
+  await saveToken(refreshToken, expert.id, refreshTokenExpires, tokenTypes.REFRESH);
+
+  return {
+    access: {
+      token: accessToken,
+      expires: accessTokenExpires.toDate(),
+    },
+    refresh: {
+      token: refreshToken,
+      expires: refreshTokenExpires.toDate(),
+    },
+  };
+};
+
+/**
  * Generate reset password token
  * @param {string} email
  * @returns {Promise<string>}
@@ -98,6 +124,22 @@ const generateResetPasswordToken = async (email) => {
   const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'minutes');
   const resetPasswordToken = generateToken(user.id, expires, tokenTypes.RESET_PASSWORD);
   await saveToken(resetPasswordToken, user.id, expires, tokenTypes.RESET_PASSWORD);
+  return resetPasswordToken;
+};
+
+/**
+ * Generate reset expert password token
+ * @param {string} email
+ * @returns {Promise<string>}
+ */
+const generateExpertResetPasswordToken = async (email) => {
+  const expert = await expertService.getUserByEmail(email);
+  if (!expert) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'No experts found with this email');
+  }
+  const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'minutes');
+  const resetPasswordToken = generateToken(expert.id, expires, tokenTypes.RESET_PASSWORD);
+  await saveToken(resetPasswordToken, expert.id, expires, tokenTypes.RESET_PASSWORD);
   return resetPasswordToken;
 };
 
@@ -120,4 +162,6 @@ module.exports = {
   generateAuthTokens,
   generateResetPasswordToken,
   generateVerifyEmailToken,
+  generateExpertAuthTokens,
+  generateExpertResetPasswordToken
 };
