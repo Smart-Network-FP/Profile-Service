@@ -29,4 +29,5 @@ volumes:
 
 networks:
   node-network:
+    name: profileservice_node-network
     driver: bridge
