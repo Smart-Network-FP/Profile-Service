@@ -29,6 +29,48 @@ const queryExperts = async (filter, options) => {
 };
 
 /**
+ * Query for experts by search term
+ * @param {Object} filter - Mongo filter
+ * @param {Object} options - Query options
+ * @param {string} [options.sortBy] - Sort option in the format: sortField:(desc|asc)
+ * @param {number} [options.limit] - Maximum number of results per page (default = 10)
+ * @param {number} [options.page] - Current page (default = 1)
+ * @returns {Promise<QueryResult>}
+ */
+const queryExpertsSearch = async (keyword, filter, options) => {
+  const regex = new RegExp(keyword, 'i'); // "i" flag makes the search case-insensitive
+
+  const { emailFilter, countryFilter } = filter;
+
+  const filters = [];
+
+  if (emailFilter) {
+    filters.push({ email: emailFilter });
+  }
+
+  if (countryFilter) {
+    filters.push({ country: countryFilter });
+  }
+
+  // Keyword search conditions
+  const keywordConditions = [{ firstName: regex }, { lastName: regex }, { industry: regex }, { email: regex }];
+
+  // Build the query
+  let query = {
+    $and: [{ $or: keywordConditions }, ...filters],
+  };
+
+  // If there are no filters, use only the keyword conditions for the query
+  if (filters.length === 0) {
+    query = { $or: keywordConditions };
+  }
+
+  console.log('query\n', query);
+  const experts = await Expert.paginate(query, options);
+  return experts;
+};
+
+/**
  * Get expert by id
  * @param {ObjectId} id
  * @returns {Promise<Expert>}
@@ -86,4 +128,5 @@ module.exports = {
   getExpertByEmail,
   updateExpertById,
   deleteExpertById,
+  queryExpertsSearch,
 };

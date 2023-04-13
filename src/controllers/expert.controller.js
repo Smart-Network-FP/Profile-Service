@@ -100,6 +100,16 @@ const getProfileInfo = catchAsync(async (req, res) => {
   res.send(experienceInfo);
 });
 
+const queryExperts = catchAsync(async (req, res) => {
+  const { keyword, filter, options } = req.body
+  const experts = await expertService.queryExpertsSearch(keyword, filter, options);
+  if (!experts && !Array.isArray(experts)) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Experts not found');
+  }
+  // experienceInfo = await expert.getProfileInfo();
+  res.send(experts);
+});
+
 module.exports = {
   createExpert,
   getExperts,
@@ -115,4 +125,5 @@ module.exports = {
   getSummaryInfo,
   saveSummaryInfo,
   getProfileInfo,
+  queryExperts
 };
