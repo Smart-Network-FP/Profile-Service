@@ -80,6 +80,14 @@ const getProfileInfo = {
   }),
 };
 
+const queryExperts = {
+  body: Joi.object().keys({
+    keyword: Joi.string().allow(''),
+    filter: Joi.object(),
+    options: Joi.object(),
+  }),
+};
+
 module.exports = {
   personalInfo,
   getPersonalInfo,
@@ -91,4 +99,5 @@ module.exports = {
   getSummaryInfo,
   getProfileInfo,
   getExperts,
+  queryExperts,
 };

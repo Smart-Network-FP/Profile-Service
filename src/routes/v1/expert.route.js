@@ -28,5 +28,8 @@ router
   .route('/profile')
   // .post(auth(), validate(expertValidation.summaryInfo), expertController.saveSummaryInfo)
   .get(auth(), validate(expertValidation.getProfileInfo), expertController.getProfileInfo);
+router
+  .route('/query')
+  .post(auth(), validate(expertValidation.queryExperts), expertController.queryExperts);
 
 module.exports = router;
