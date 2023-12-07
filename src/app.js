@@ -10,19 +10,27 @@ const config = require('./config/config');
 const morgan = require('./config/morgan');
 const { jwtStrategy } = require('./config/passport');
 const { authLimiter } = require('./middlewares/rateLimiter');
-const routes = require('./routes/v1');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 const ApiError = require('./utils/ApiError');
 const docsRoute = require('./routes/v1/docs.route');
-
+const openAIApi = require('./openAI.config');
 const app = express();
 
+const { Client } = require('@elastic/elasticsearch');
+const esClient = new Client({ node: process.env.ELASTICSEARCH_URL || 'http://localhost:9200' });
+
+const models = require('./models');
+const services = require('./services')(esClient, models, openAIApi);
+console.log('services', services);
+// const serv = services(esClient, models, openAIApi);
+const controller = require('./controllers')(esClient, services);
+const routes = require('./routes/v1')(services, esClient, controller);
 if (config.env !== 'test') {
   app.use(morgan.successHandler);
   app.use(morgan.errorHandler);
 }
 
-app.use('/v1/docs', docsRoute)
+app.use('/v1/docs', docsRoute);
 
 // set security HTTP headers
 app.use(helmet());

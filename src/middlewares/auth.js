@@ -26,6 +26,7 @@ const auth =
   (...requiredRights) =>
   async (req, res, next) => {
     return new Promise((resolve, reject) => {
+      console.log('Token', req.headers)
       passport.authenticate('jwt', { session: false }, verifyCallback(req, resolve, reject, requiredRights))(req, res, next);
     })
       .then(() => next())

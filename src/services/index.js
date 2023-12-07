@@ -1,5 +1,13 @@
-module.exports.authService = require('./auth.service');
-module.exports.emailService = require('./email.service');
-module.exports.tokenService = require('./token.service');
-module.exports.userService = require('./user.service');
-module.exports.expertService = require('./expert.service');
+module.exports = (esClient, models, openAIApi) => {
+  const services = {};
+
+  services.emailService = require('./email.service')();
+  services.userService = require('./user.service')(models);
+  services.expertService = require('./expert.service')(models);
+  services.elasticService = require('./elastic.service')(esClient);
+  services.gptService = require('./gpt.service')(openAIApi);
+  services.tokenService = require('./token.service')(models, services);
+  services.authService = require('./auth.service')(models, services);
+
+  return services;
+};

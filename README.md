@@ -48,6 +48,11 @@ cp .env.example .env
 # open .env and modify the environment variables (if needed)
 ```
 
+## Quick run using docker
+```bash
+npm run docker:dev -- --build    
+```
+
 ## Table of Contents
 
 - [Features](#features)

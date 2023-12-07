@@ -7,7 +7,7 @@ services:
     environment:
       - MONGODB_URL=mongodb://mongodb:27017/profile-db
     ports:
-      - '5000:3000'
+      - '9000:9000'
     depends_on:
       - mongodb
     volumes:
@@ -21,6 +21,15 @@ services:
       - '27017:27017'
     volumes:
       - dbdata:/data/db
+    networks:
+      - node-network
+  
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+    ports:
+      - "9200:9200"
+    environment:
+      - "discovery.type=single-node"
     networks:
       - node-network
 
