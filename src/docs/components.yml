@@ -18,6 +18,23 @@ components:
         email: fake@example.com
         name: fake name
         role: user
+    Users: # <-- New schema for array of User objects
+      type: object
+      properties:
+        users: # <-- Array of users
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+      example:
+        users:
+          - id: 5ebac534954b54139806c112
+            email: fake@example.com
+            name: fake name
+            role: user
+          - id: 5ebac534954b54139806c113
+            email: another@example.com
+            name: another name
+            role: admin
 
     Token:
       type: object
@@ -38,7 +55,13 @@ components:
           $ref: '#/components/schemas/Token'
         refresh:
           $ref: '#/components/schemas/Token'
-
+    Success:
+      type: object
+      properties:
+        code:
+          type: number
+        message:
+          type: string
     Error:
       type: object
       properties:
@@ -48,6 +71,15 @@ components:
           type: string
 
   responses:
+    IndexCreated:
+      description: Index Created Successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Success'
+          example:
+            code: 200
+            message: Index Created Successfully
     DuplicateEmail:
       description: Email already taken
       content:

@@ -1,6 +1,7 @@
 FROM node:alpine
 
 RUN mkdir -p /usr/src/node-app && chown -R node:node /usr/src/node-app
+ENV ELASTICSEARCH_URL http://elasticsearch:9200
 
 WORKDIR /usr/src/node-app
 

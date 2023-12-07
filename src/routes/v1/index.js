@@ -5,40 +5,51 @@ const userRoute = require('./user.route');
 const docsRoute = require('./docs.route');
 const config = require('../../config/config');
 
-const router = express.Router();
+module.exports = (services, elasticClient, controller) => {
+  const elasticSearch = require('./elasticSearch.route')(elasticClient, services, controller);
+  const gptRoute = require('./gpt.route')(elasticClient, services, controller);
+  const router = express.Router();
 
-const defaultRoutes = [
-  {
-    path: '/auth',
-    route: authRoute,
-  },
-  {
-    path: '/experts',
-    route: expertRoute,
-  },
-  {
-    path: '/users',
-    route: userRoute,
-  },
-];
+  const defaultRoutes = [
+    {
+      path: '/auth',
+      route: authRoute(elasticClient, services, controller),
+    },
+    {
+      path: '/experts',
+      route: expertRoute(elasticClient, services, controller),
+    },
+    {
+      path: '/users',
+      route: userRoute(elasticClient, services, controller),
+    },
+    {
+      path: '/elastic-search',
+      route: elasticSearch,
+    },
+    {
+      path: '/gpt',
+      route: gptRoute,
+    },
+  ];
 
-const devRoutes = [
-  // routes available only in development mode
-//  {
-  //  path: '/docs',
-  //  route: docsRoute,
- // },
-];
+  const devRoutes = [
+    // routes available only in development mode
+    //  {
+    //  path: '/docs',
+    //  route: docsRoute,
+    // },
+  ];
 
-defaultRoutes.forEach((route) => {
-  router.use(route.path, route.route);
-});
-
-/* istanbul ignore next */
-if (config.env === 'development') {
-  devRoutes.forEach((route) => {
+  defaultRoutes.forEach((route) => {
     router.use(route.path, route.route);
   });
-}
 
-module.exports = router;
+  /* ignore next */
+  if (config.env === 'development') {
+    devRoutes.forEach((route) => {
+      router.use(route.path, route.route);
+    });
+  }
+  return router;
+};
