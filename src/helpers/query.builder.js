@@ -1,5 +1,9 @@
 const buildElasticsearchQuery = (params) => {
-  const { firstName, lastName, industry, email, searchText } = params;
+  // [TODO] for some reason the term query for multiple words is not working
+  const {
+    filter: { firstName, lastName, industry, email },
+    searchText,
+  } = params;
 
   let must = [];
   let should = [];

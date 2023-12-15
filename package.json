@@ -49,6 +49,7 @@
     "prettier"
   ],
   "dependencies": {
+    "@azure/communication-email": "^1.0.0",
     "@elastic/elasticsearch": "^8.9.0",
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.4",

@@ -76,7 +76,9 @@ module.exports = ({ expertService, elasticService }) => ({
   }),
 
   saveExpertiseInfo: catchAsync(async (req, res) => {
-    const expert = await expertService.updateExpertById(req.user._id, req.body);
+    const { mySkills } = req.body;
+    console.log('mySkills', mySkills);
+    const expert = await expertService.updateExpertById(req.user._id, { expertise: mySkills });
     await elasticService.indexOrUpdateProfile(expert);
     res.send(expert);
   }),

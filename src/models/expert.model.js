@@ -6,13 +6,14 @@ const { roles } = require('../config/roles');
 const { string } = require('joi');
 
 const Experience = {
-  title: {
+  role: {
     type: String,
     maxlength: 10,
   },
   startDate: Date,
   endDate: Date,
-  companyName: String,
+  company: String,
+  location: String,
   description: {
     type: String,
     maxlength: 500,
@@ -20,20 +21,25 @@ const Experience = {
 };
 
 const Expertise = {
-  skills: {
-    type: Array,
-    of: String,
-  },
-  country: {
+  id: {
     type: String,
   },
-  company: {
+  skill: {
     type: String,
   },
-  description: {
+  level: {
     type: String,
-    maxlength: 500,
   },
+  years: {
+    type: String,
+  },
+  // company: {
+  //   type: String,
+  // },
+  // description: {
+  //   type: String,
+  //   maxlength: 500,
+  // },
 };
 const expertSchema = mongoose.Schema(
   {

@@ -8,4 +8,5 @@ module.exports = (client, services) => ({
   expertController: require('./expert.controller')(services),
   elasticController: require('./elastic.controller')(client, services),
   gptController: require('./gpt.controller')(services),
+  emailController: require('./email.controller')(services),
 });

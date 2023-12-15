@@ -27,20 +27,36 @@ const personalInfo = {
 
 const experienceInfo = {
   body: Joi.object().keys({
-    title: Joi.string().required(),
-    startDate: Joi.string().required(),
-    endDate: Joi.string().required(),
-    companyName: Joi.string().required(),
-    description: Joi.string().required(),
+    experience: Joi.array().items(
+      Joi.object({
+        id: Joi.string().required(),
+        role: Joi.string().required(),
+        startDate: Joi.string().required(),
+        endDate: Joi.string().required(),
+        company: Joi.string().required(),
+        location: Joi.string().required(),
+        description: Joi.string().required(),
+      })
+    ),
   }),
 };
 
 const expertiseInfo = {
   body: Joi.object().keys({
-    skills: Joi.array().items(Joi.string()).required(),
-    country: Joi.string().required(),
-    company: Joi.string().required(),
-    description: Joi.string().required(),
+    mySkills: Joi.array()
+      .items(
+        Joi.object({
+          id: Joi.string().required(),
+          skill: Joi.string().required(),
+          level: Joi.string().required(),
+          years: Joi.string().required(),
+        })
+      )
+      .required(),
+    // Include other fields if needed, e.g., country, company, description
+    // country: Joi.string().required(),
+    // company: Joi.string().required(),
+    // description: Joi.string().required(),
   }),
 };
 
