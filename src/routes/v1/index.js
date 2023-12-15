@@ -4,10 +4,12 @@ const expertRoute = require('./expert.route');
 const userRoute = require('./user.route');
 const docsRoute = require('./docs.route');
 const config = require('../../config/config');
+const auth = require('../../middlewares/auth');
 
 module.exports = (services, elasticClient, controller) => {
   const elasticSearch = require('./elasticSearch.route')(elasticClient, services, controller);
   const gptRoute = require('./gpt.route')(elasticClient, services, controller);
+  const emailRoute = require('./email.route')(controller);
   const router = express.Router();
 
   const defaultRoutes = [
@@ -30,6 +32,10 @@ module.exports = (services, elasticClient, controller) => {
     {
       path: '/gpt',
       route: gptRoute,
+    },
+    {
+      path: '/email',
+      route: emailRoute,
     },
   ];
 

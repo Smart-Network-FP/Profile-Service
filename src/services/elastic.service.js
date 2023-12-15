@@ -3,6 +3,7 @@ const ApiError = require('../utils/ApiError');
 const _ = require('lodash');
 const ESMapping = require('../helpers/es.mapping');
 const buildElasticsearchQuery = require('../helpers/query.builder');
+const { sanitizeData } = require('../helpers/utils');
 
 module.exports = (client) => {
   return {
@@ -56,7 +57,8 @@ module.exports = (client) => {
         // Process the hits
         console.log('body -> hits', hits);
         console.log('remain -> hits', remain);
-        return _.get(hits, 'hits', []); // This will return the array of search hits.
+
+        return sanitizeData(_.get(hits, 'hits', [])); // This will return the array of search hits.
       } catch (err) {
         console.log(err);
         throw new ApiError(httpStatus.BAD_REQUEST, 'Something Went Wrong');
@@ -85,6 +87,19 @@ module.exports = (client) => {
         } else {
           throw new ApiError(httpStatus.BAD_REQUEST, 'Cannot index or update profile');
         }
+      }
+    },
+    deleteIndex: async (index) => {
+      try {
+        await client.indices.delete(
+          {
+            index,
+          },
+          { ignore: [400] }
+        );
+      } catch (err) {
+        console.log(err);
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Cannot Delete Index');
       }
     },
   };

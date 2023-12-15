@@ -17,7 +17,8 @@ const router = express.Router();
  */
 module.exports = (elasticClient, services, { elasticController }) => {
   router.post('/mapping/:index', elasticController.createMapping);
-  router.get('/search', elasticController.search);
+  router.post('/search', elasticController.search);
+  router.post('/delete/:index', elasticController.deleteIndex);
 
   return router;
 };

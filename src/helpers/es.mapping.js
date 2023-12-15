@@ -30,7 +30,7 @@ module.exports =
       },
       experience: {
         properties: {
-          title: {
+          role: {
             type: 'text',
           },
           startDate: {
@@ -39,7 +39,10 @@ module.exports =
           endDate: {
             type: 'date',
           },
-          companyName: {
+          company: {
+            type: 'keyword',
+          },
+          location: {
             type: 'keyword',
           },
           description: {
@@ -49,13 +52,13 @@ module.exports =
       },
       expertise: {
         properties: {
-          skills: {
+          skill: {
             type: 'text',
           },
-          country: {
+          level: {
             type: 'keyword',
           },
-          company: {
+          years: {
             type: 'keyword',
           },
           description: {

@@ -1,59 +1,60 @@
-const nodemailer = require('nodemailer');
-const config = require('../config/config');
-const logger = require('../config/logger');
+const { EmailClient, KnownEmailSendStatus } = require('@azure/communication-email');
 
-const transport = nodemailer.createTransport(config.email.smtp);
-/* istanbul ignore next */
-if (config.env !== 'test') {
-  transport
-    .verify()
-    .then(() => logger.info('Connected to email server'))
-    .catch(() => logger.warn('Unable to connect to email server. Make sure you have configured the SMTP options in .env'));
-}
+// This code demonstrates how to fetch your connection string
+// from an environment variable.
+const connectionString = process.env['COMMUNICATION_SERVICES_CONNECTION_STRING'];
+const emailClient = new EmailClient(connectionString);
 
 module.exports = () => ({
-  transport,
-  /**
-   * Send an email
-   * @param {string} to
-   * @param {string} subject
-   * @param {string} text
-   * @returns {Promise}
-   */
-  sendEmail: async (to, subject, text) => {
-    const msg = { from: config.email.from, to, subject, text };
-    await transport.sendMail(msg);
-  },
+  sendEmail: async function (recipients, subject, message) {
+    const POLLER_WAIT_TIME = 10;
+    try {
+      const messagePayload = {
+        senderAddress: 'DoNotReply@41a492bf-3586-43c0-9c83-4ec57da324d8.azurecomm.net',
+        content: {
+          subject,
+          plainText: message,
+        },
+        recipients: {
+          to: recipients,
+        },
+        // {
+        //   to: [
+        //     {
+        //       address: '<emailalias@emaildomain.com>',
+        //       displayName: 'Customer Name',
+        //     },
+        //   ],
+        // },
+      };
 
-  /**
-   * Send reset password email
-   * @param {string} to
-   * @param {string} token
-   * @returns {Promise}
-   */
-  sendResetPasswordEmail: async (to, token) => {
-    const subject = 'Reset password';
-    // replace this url with the link to the reset password page of your front-end app
-    const resetPasswordUrl = `http://link-to-app/reset-password?token=${token}`;
-    const text = `Dear user,
-To reset your password, click on this link: ${resetPasswordUrl}
-If you did not request any password resets, then ignore this email.`;
-    await sendEmail(to, subject, text);
-  },
+      const poller = await emailClient.beginSend(messagePayload);
 
-  /**
-   * Send verification email
-   * @param {string} to
-   * @param {string} token
-   * @returns {Promise}
-   */
-  sendVerificationEmail: async (to, token) => {
-    const subject = 'Email Verification';
-    // replace this url with the link to the email verification page of your front-end app
-    const verificationEmailUrl = `http://link-to-app/verify-email?token=${token}`;
-    const text = `Dear user,
-To verify your email, click on this link: ${verificationEmailUrl}
-If you did not create an account, then ignore this email.`;
-    await sendEmail(to, subject, text);
+      if (!poller.getOperationState().isStarted) {
+        throw 'Poller was not started.';
+      }
+
+      let timeElapsed = 0;
+      while (!poller.isDone()) {
+        poller.poll();
+        console.log('Email send polling in progress');
+
+        await new Promise((resolve) => setTimeout(resolve, POLLER_WAIT_TIME * 1000));
+        timeElapsed += 10;
+
+        if (timeElapsed > 18 * POLLER_WAIT_TIME) {
+          throw 'Polling timed out.';
+        }
+      }
+
+      if (poller.getResult().status === KnownEmailSendStatus.Succeeded) {
+        console.log(`Successfully sent the email (operation id: ${poller.getResult().id})`);
+        return `Successfully sent the email (operation id: ${poller.getResult().id})`;
+      } else {
+        throw poller.getResult().error;
+      }
+    } catch (e) {
+      console.log(e);
+    }
   },
 });

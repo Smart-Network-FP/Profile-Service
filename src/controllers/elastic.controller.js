@@ -8,8 +8,13 @@ module.exports = (client, services) => ({
     res.status(httpStatus.NO_CONTENT).send();
   }),
   search: catchAsync(async (req, res) => {
-    const query = req.query;
+    const { query } = req.body;
     const result = await services.elasticService.searchQuery(query);
     res.status(httpStatus.OK).json(result);
+  }),
+  deleteIndex: catchAsync(async (req, res) => {
+    const index = req.params.index;
+    await services.elasticService.deleteIndex(index);
+    res.status(httpStatus.NO_CONTENT).send();
   }),
 });
