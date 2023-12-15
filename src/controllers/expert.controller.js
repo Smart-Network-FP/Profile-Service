@@ -109,8 +109,8 @@ module.exports = ({ expertService, elasticService }) => ({
   }),
 
   getProfileInfoById: catchAsync(async (req, res) => {
-    console.log('req.params.expertId', req.query.expertId);
-    const expert = await expertService.getExpertById(req.query.expertId);
+    console.log('req.params.expertId', req.params.expertId);
+    const expert = await expertService.getExpertById(req.params.expertId);
     if (!expert) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Expert not found');
     }

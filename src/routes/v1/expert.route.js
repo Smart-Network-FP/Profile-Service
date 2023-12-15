@@ -28,7 +28,7 @@ module.exports = (elasticClient, services, { expertController }) => {
     // .post(auth(), validate(expertValidation.summaryInfo), expertController.saveSummaryInfo)
     .get(auth(), validate(expertValidation.getProfileInfo), expertController.getProfileInfo);
   router
-    .route('/profileById')
+    .route('/profileById/:expertId')
     // .post(auth(), validate(expertValidation.summaryInfo), expertController.saveSummaryInfo)
     .get(auth(), validate(expertValidation.getProfileInfo), expertController.getProfileInfoById);
   router.route('/query').post(auth(), validate(expertValidation.queryExperts), expertController.queryExperts);
