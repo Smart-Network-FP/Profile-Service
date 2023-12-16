@@ -2,7 +2,7 @@ const httpStatus = require('http-status');
 const pick = require('../utils/pick');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
-module.exports = ({ expertService, elasticService }) => ({
+module.exports = ({ expertService, elasticService }, { gptController }) => ({
   createExpert: catchAsync(async (req, res) => {
     const expert = await expertService.createExpert(req.body);
     res.status(httpStatus.CREATED).send(expert);
@@ -62,7 +62,9 @@ module.exports = ({ expertService, elasticService }) => ({
 
   saveExperienceInfo: catchAsync(async (req, res) => {
     const expert = await expertService.updateExpertById(req.user._id, req.body);
-    await elasticService.indexOrUpdateProfile(expert);
+    const summary = await gptController.promptSummarize(expert);
+    const expertSum = await expertService.updateExpertById(req.user._id, { summary });
+    await elasticService.indexOrUpdateProfile(expertSum);
     res.send(expert);
   }),
 

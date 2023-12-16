@@ -14,7 +14,8 @@ const router = express.Router();
  *
  */
 module.exports = (elasticClient, services, { gptController }) => {
-  router.post('/prompt', gptController.promptTokenization)
+  router.post('/prompt', gptController.promptTokenization);
+  router.post('/summary', gptController.promptSummarizeRequest);
   return router;
 };
 /**
